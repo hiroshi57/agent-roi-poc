@@ -61,6 +61,28 @@ def bootstrap_reduction_ci(before: List[float], after: List[float],
     return (point, lo, hi)
 
 
+def permutation_test(before: List[float], after: List[float],
+                     n_perm: int = 2000, seed: int = 42) -> float:
+    """平均差の並べ替え検定. p値(before>afterという削減が偶然でない確率)を返す.
+
+    CIを補完する仮説検定。両群をプールしてランダム分割し、観測された平均差以上が
+    偶然生じる割合を p値とする(片側: before平均 > after平均)。
+    """
+    if not before or not after:
+        return 1.0
+    observed = mean(before) - mean(after)
+    pooled = before + after
+    nb = len(before)
+    rng = random.Random(seed)
+    count = 0
+    for _ in range(n_perm):
+        rng.shuffle(pooled)
+        diff = mean(pooled[:nb]) - mean(pooled[nb:])
+        if diff >= observed:
+            count += 1
+    return round((count + 1) / (n_perm + 1), 4)   # +1平滑化
+
+
 @dataclass
 class ModeSummary:
     mode: str

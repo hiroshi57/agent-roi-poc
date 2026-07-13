@@ -24,12 +24,19 @@ AIエージェント導入による **ROI（処理時間削減率・エラー率
 {"mode":"after","task":"見積書作成","duration_sec":178.3,"had_error":false,"human_intervention":true,"ts":"..."}
 ```
 
+## 全機能(差別化＋拡張)
+
+- 信頼区間つき比較（ブートストラップ／Wilson）＋ 人間介入率（差別化コア）
+- **有意差検定**（`permutation_test`）: 並べ替え検定の p 値で「偶然でない削減」を裏づけ
+- **金額換算ROI**（`roi.py`）: 時給×削減時間×件数 − AIコスト → 月間/年間純便益・年間ROI%・回収月数
+- **業務別比較**（`compare_by_task`）＋ **Markdownレポート出力**（`render_markdown`）
+
 ## クイックスタート
 
 ```bash
-python demo.py                      # ログ生成 -> ROIレポート(CLI)
+python demo.py                      # ログ生成 -> ROIレポート + p値 + 金額換算ROI
 python dashboard/app.py             # Streamlitあれば GUI、無ければ CLIレポート
-python -m pytest -q                 # テスト(外部依存なし)
+python -m pytest -q                 # テスト16件(外部依存なし)
 # GUI: pip install streamlit && streamlit run dashboard/app.py
 ```
 
