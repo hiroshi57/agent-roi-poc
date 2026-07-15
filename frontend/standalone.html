@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI導入ROI PoC(スタンドアロン)</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body{font-family:system-ui,sans-serif;background:#f7f8fa;margin:0;padding:24px;color:#1a1a2e}
+    .wrap{max-width:720px;margin:0 auto} h1{color:#0a7d5a;font-size:22px}
+    .card{background:#fff;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .metrics{display:flex;gap:16px} .metric{flex:1;background:#e7f7f0;border-radius:8px;padding:12px;text-align:center}
+    .metric .val{font-size:26px;font-weight:bold;color:#0a7d5a} ul{line-height:1.7}
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel" data-presets="react">
+  const D={comparison:{time_reduction_pct:70.3,time_reduction_ci:[66.3,73.8],after:{intervention_rate:0.37}},
+    p_value:0.0005,monetary:{monthly_net_saving_yen:123359,roi_percent:247,payback_months:0.4}};
+  function App(){
+    return (<div className="wrap"><h1>AI導入 ROI PoC <small style={{fontSize:12,color:"#889"}}>(デモ)</small></h1>
+      <div className="card"><h2>ROIサマリ</h2>
+        <div className="metrics">
+          <div className="metric"><div>時間削減率</div><div className="val">{D.comparison.time_reduction_pct}%</div>
+            <small>95%CI {D.comparison.time_reduction_ci[0]}〜{D.comparison.time_reduction_ci[1]}%</small></div>
+          <div className="metric"><div>p値</div><div className="val">{D.p_value}</div><small>有意</small></div>
+          <div className="metric"><div>人間介入率(after)</div><div className="val">{Math.round(D.comparison.after.intervention_rate*100)}%</div></div>
+        </div>
+        <h3>金額換算ROI</h3>
+        <ul><li>月間純便益: {D.monetary.monthly_net_saving_yen.toLocaleString()}円</li>
+          <li>年間ROI: {D.monetary.roi_percent}% / 回収 {D.monetary.payback_months}ヶ月</li></ul>
+      </div></div>);
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script></body></html>

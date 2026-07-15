@@ -1,4 +1,6 @@
-# コア(src/)は標準ライブラリのみで動作。以下はダッシュボード/テスト用。
+# コア(src/)は標準ライブラリのみで動作。API層は FastAPI。
 pytest>=8.0
-# GUIダッシュボードを使う場合のみ:
-# streamlit>=1.30
+fastapi>=0.110
+uvicorn>=0.29
+httpx>=0.27
+# GUIダッシュボード(任意): streamlit>=1.30

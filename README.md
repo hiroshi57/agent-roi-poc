@@ -31,6 +31,20 @@ AIエージェント導入による **ROI（処理時間削減率・エラー率
 - **金額換算ROI**（`roi.py`）: 時給×削減時間×件数 − AIコスト → 月間/年間純便益・年間ROI%・回収月数
 - **業務別比較**（`compare_by_task`）＋ **Markdownレポート出力**（`render_markdown`）
 
+## 本番構成（SQLite + HTMLレポート + Vite 2画面）
+
+- **DB**: `service/db.py`（SQLite）。導入前後ログ保存、全クエリ tenant_id 強制フィルタ＝**テナント分離**
+- **API**: `service/api.py`（FastAPI）。runs(取込) / roi(比較+金額+p値) / report(HTML)
+- **HTMLレポート**: `service/report_html.py`（削減率CI＋p値＋金額換算ROI）
+- **フロント**: `frontend/`（React+Vite）。**実行ログ入力**＋**ROIダッシュボード**の2画面。ビルド不要は `frontend/standalone.html`
+- **CI**: `.github/workflows/ci.yml`
+
+```bash
+uvicorn service.api:app --reload
+cd frontend && npm install && npm run dev     # or: open frontend/standalone.html
+python -m pytest -q                            # テスト21件(DB/テナント分離/HTMLレポート/API E2E含む)
+```
+
 ## クイックスタート
 
 ```bash
