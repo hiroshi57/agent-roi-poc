@@ -2,46 +2,99 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI導入ROI PoC(スタンドアロン)</title>
+  <title>AI導入ROI PoC</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
   <style>
-    body{font-family:system-ui,sans-serif;background:#f7f8fa;margin:0;padding:24px;color:#1a1a2e}
-    .wrap{max-width:720px;margin:0 auto} h1{color:#0a7d5a;font-size:22px}
-    .card{background:#fff;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-    .metrics{display:flex;gap:16px} .metric{flex:1;background:#e7f7f0;border-radius:8px;padding:12px;text-align:center}
-    .metric .val{font-size:26px;font-weight:bold;color:#0a7d5a} ul{line-height:1.7}
-  
-    /* --- レスポンシブ強化(スマホ最適化) --- */
-    *{box-sizing:border-box} img,pre,table{max-width:100%}
-    .metrics{flex-wrap:wrap}
-    @media (max-width:640px){
-      body{padding:14px} .wrap{max-width:100%}
-      h1{font-size:19px} nav button{margin-bottom:6px}
-      .metrics{flex-direction:column;gap:8px} .metric{width:100%}
-      table{display:block;overflow-x:auto;white-space:nowrap;font-size:13px}
-      pre{overflow-x:auto} input,textarea,select{max-width:100%;width:100%}
-    }
-</style>
+    body{font-family:system-ui,sans-serif;background:#f5f7f9;margin:0;padding:24px;color:#152238}
+    .wrap{max-width:860px;margin:0 auto} h1{color:#0a7d5a;font-size:22px}
+    h2{font-size:16px;margin:2px 0 8px} h3{font-size:14px;margin:10px 0 4px} .sub{color:#8a97a6;font-size:12px}
+    .card{background:#fff;border-radius:14px;padding:18px;margin:14px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap} .tab{border:1px solid #cfe3d8;background:#fff;border-radius:10px;padding:9px 13px;cursor:pointer;font-size:13px}
+    .tab.on{background:#0a7d5a;color:#fff;border-color:#0a7d5a} .tab .st{font-size:11px;opacity:.85;display:block}
+    .pill{padding:2px 9px;border-radius:12px;font-size:11px;font-weight:bold}
+    .kpis{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+    .kpi{flex:1;min-width:130px;background:#f0f8f4;border-radius:10px;padding:12px;text-align:center}
+    .kpi .v{font-size:22px;font-weight:bold;color:#0a7d5a} .kpi .l{font-size:11px;color:#556;margin-top:2px}
+    .def{background:#eef7f0;border-left:4px solid #0a7d5a;border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0}
+    .calc{background:#f7fbf9;border:1px solid #cfe3d8;border-radius:10px;padding:12px;font-size:13px;line-height:1.9}
+    .big{font-size:22px;font-weight:bold;color:#0a7d5a} .note{color:#8a97a6;font-size:12px}
+    table{border-collapse:collapse;width:100%;font-size:13px} th,td{border:1px solid #e3e8ee;padding:8px;text-align:center} th{background:#eaf5ef} td.l,th.l{text-align:left}
+    @media(max-width:640px){body{padding:14px} .wrap{max-width:100%} h1{font-size:19px} table{display:block;overflow-x:auto;white-space:nowrap;font-size:12px}}
+  </style>
 </head>
-<body><div id="root"></div>
+<body><div style="max-width:880px;margin:0 auto 4px;background:#fff8e1;border:1px solid #f0d98a;border-radius:10px;padding:8px 14px;font:13px system-ui;color:#7a5b00">🔬 <b>デモ版</b>：数値は<b>サンプル（実測・実データではありません）</b>。ロジックの見せ方を確認するためのプロトタイプです。</div>
+<div id="root"></div>
 <script type="text/plain" id="__jsx">
-  const D={comparison:{time_reduction_pct:70.3,time_reduction_ci:[66.3,73.8],after:{intervention_rate:0.37}},
-    p_value:0.0005,monetary:{monthly_net_saving_yen:123359,roi_percent:247,payback_months:0.4}};
-  function App(){
-    return (<div className="wrap"><h1>AI導入 ROI PoC <small style={{fontSize:12,color:"#889"}}>(デモ)</small></h1>
-      <div className="card"><h2>ROIサマリ</h2>
-        <div className="metrics">
-          <div className="metric"><div>時間削減率</div><div className="val">{D.comparison.time_reduction_pct}%</div>
-            <small>95%CI {D.comparison.time_reduction_ci[0]}〜{D.comparison.time_reduction_ci[1]}%</small></div>
-          <div className="metric"><div>p値</div><div className="val">{D.p_value}</div><small>有意</small></div>
-          <div className="metric"><div>人間介入率(after)</div><div className="val">{Math.round(D.comparison.after.intervention_rate*100)}%</div></div>
+const CASES=[
+  {id:"見積書作成の自動化", status:"完了", sc:"#17a673", phase:"PoC完了 → 本格導入を判断中", period:"2026-04〜05（4週間）", n:60,
+   task:"営業の見積書作成", beforeSec:600, afterSec:180, red:70.3, ci:[66.3,73.8],
+   intvAfter:37, errBefore:23, errAfter:0, rate:3000, volume:500, aiCost:50000},
+  {id:"問い合わせ一次対応", status:"進行中", sc:"#f0a500", phase:"実証中（3週目・中間結果）", period:"2026-06〜（継続中）", n:120,
+   task:"CSの一次回答(RAG)", beforeSec:300, afterSec:126, red:58, ci:[49,66],
+   intvAfter:45, errBefore:12, errAfter:4, rate:2800, volume:2000, aiCost:80000},
+  {id:"議事録作成の自動化", status:"計画中", sc:"#8aa9d6", phase:"計画中（未実証・想定値のみ）", period:"2026-08 開始予定", n:0,
+   task:"会議議事録の作成", planned:"想定削減率 50%（類型：生成支援）", rate:3000, volume:300, aiCost:30000},
+];
+function money(c){
+  const savedHmonth=(c.beforeSec-c.afterSec)/3600*c.volume;
+  const grossY=savedHmonth*c.rate*12;
+  const netY=grossY-c.aiCost*12;
+  return {savedHmonth, grossY, netY, savedHyear:savedHmonth*12};
+}
+function App(){
+  const [i,setI]=React.useState(0);
+  const c=CASES[i];
+  const planned=c.status==="計画中";
+  const m=planned?null:money(c);
+  return (<div className="wrap">
+    <h1>AI導入 ROI PoC <span className="sub">試験導入(PoC)で効果を実測し、本格導入を判断する</span></h1>
+    <p className="sub">PoC＝Proof of Concept（試験導入）。案件ごとに「どれだけ時間・コストが減り、品質はどうか」を実測します。</p>
+
+    <div className="card">
+      <h2>PoC案件を選択</h2>
+      <div className="tabs">{CASES.map((x,j)=>(<div key={j} className={"tab"+(j===i?" on":"")} onClick={()=>setI(j)}>
+        {x.id}<span className="st">{x.status}</span></div>))}</div>
+    </div>
+
+    <div className="card">
+      <h2>{c.id} <span className="pill" style={{background:c.sc+"22",color:c.sc}}>{c.status}</span></h2>
+      <table><tbody>
+        <tr><td className="l">対象業務</td><td className="l">{c.task}</td><td className="l">ステータス</td><td className="l">{c.phase}</td></tr>
+        <tr><td className="l">実証期間</td><td className="l">{c.period}</td><td className="l">実測サンプル</td><td className="l">{c.n>0?c.n+"件":"—（未実証）"}</td></tr>
+      </tbody></table>
+    </div>
+
+    {planned
+      ? <div className="card"><h2>実測結果</h2>
+          <p>この案件は<b>計画中</b>で、まだ実証していないため実績はありません。</p>
+          <p className="sub">現時点の想定: {c.planned}。PoC開始後に、下記と同じ形式で「導入前/後の実測」を表示します。</p></div>
+      : <div>
+        <div className="card"><h2>実測サマリ（{c.task}）</h2>
+          <div className="kpis">
+            <div className="kpi"><div className="v">{c.beforeSec/60}分 → {Math.round(c.afterSec/60*10)/10}分</div><div className="l">1件あたり処理時間(導入前→後)</div></div>
+            <div className="kpi"><div className="v">▲{c.red}%</div><div className="l">時間削減率<br/>（95%範囲 {c.ci[0]}〜{c.ci[1]}%＝安定した効果）</div></div>
+            <div className="kpi"><div className="v">{c.errBefore}% → {c.errAfter}%</div><div className="l">エラー率(導入前→後)</div></div>
+            <div className="kpi"><div className="v">{c.intvAfter}%</div><div className="l">人間介入率(導入後)</div></div>
+          </div>
+          <div className="def"><b>人間介入率とは？</b> AIの出力を<b>人が確認・修正した割合</b>です。導入前は人手なので100%。導入後この値が低いほど「AIに任せられている」ことを意味します（今回 {c.intvAfter}%＝約{100-c.intvAfter}%は人の手を離れた）。</div>
         </div>
-        <h3>金額換算ROI</h3>
-        <ul><li>月間純便益: {D.monetary.monthly_net_saving_yen.toLocaleString()}円</li>
-          <li>年間ROI: {D.monetary.roi_percent}% / 回収 {D.monetary.payback_months}ヶ月</li></ul>
-      </div></div>);
-  }
-  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script><script>(function(){var src=document.getElementById("__jsx").textContent;var out=Babel.transform(src,{presets:[["react",{runtime:"classic"}]]}).code;(0,eval)(out);})();</script></body></html>
+
+        <div className="card"><h2>金額換算ROI <span className="sub">（PoC実測にもとづく“本格導入後”の年間試算）</span></h2>
+          <p className="sub">これは現状値ではなく、<b>PoCで実測した1件あたりの短縮時間</b>をもとに、本格導入したら年間いくら効果が出るかの<b>試算(見込み)</b>です。</p>
+          <div className="calc">
+            <div>前提: 時給 <b>{c.rate.toLocaleString()}円</b> ／ 月間処理 <b>{c.volume.toLocaleString()}件</b> ／ AI月額コスト <b>{c.aiCost.toLocaleString()}円</b></div>
+            <div>① 1件の短縮 = {(c.beforeSec-c.afterSec)/60}分 × 月{c.volume.toLocaleString()}件 = <b>{Math.round(m.savedHmonth)}時間/月</b> 削減</div>
+            <div>② 年間削減時間 = {Math.round(m.savedHmonth)}h × 12 = <b>{Math.round(m.savedHyear)}時間/年</b></div>
+            <div>③ 人件費換算 = {Math.round(m.savedHyear)}h × {c.rate.toLocaleString()}円 = {Math.round(m.grossY/10000)}万円/年</div>
+            <div>④ AIコスト差引後(純便益) = <span className="big">年 約 {Math.round(m.netY/10000)}万円</span></div>
+          </div>
+          <p className="note">※削減時間はPoC実測、単価・件数は想定。本格導入時の見込み値です。</p>
+        </div>
+      </div>}
+  </div>);
+}
+</script>
+<script>(function(){var src=document.getElementById("__jsx").textContent;var out=Babel.transform(src,{presets:[["react",{runtime:"classic"}]]}).code;(0,eval)(out);ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));})();</script>
+</body></html>
